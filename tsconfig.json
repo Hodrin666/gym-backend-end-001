@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    /* Language and Environment */
+    "target": "es2018",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "commonjs",                                /* Specify what module code is generated. */           /* Allow 'import x from y' when a module doesn't have a default export. */
+    "lib": ["es2018", "esnext.asynciterable"],
+    "allowJs": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "strict": true,                                      /* Enable all strict type-checking options. */
+    "noImplicitAny": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@src/*":["src/*"]
+    },
+    /* Modules */
+    "esModuleInterop": true,
+
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    /* Type Checking */
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+  },
+  "exclude": ["node_modules", "dist", "coverage"],
+  "include": ["src"]
+}
