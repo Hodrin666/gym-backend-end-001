@@ -1,3 +1,7 @@
+/**
+ * Module dependencies.
+ */
+
 import 'reflect-metadata';
 import 'dotenv/config';
 import { ApolloServer } from 'apollo-server-express';
@@ -5,6 +9,10 @@ import { connect } from 'mongoose';
 import express from 'express';
 import typeDefs from '@src/graphqlType/typeDefs';
 import userResolver from '@src/resolvers/userResolver';
+
+/**
+ * Function `Main`.
+ */
 
 async function main() {
 	const app = express();
@@ -39,31 +47,6 @@ async function main() {
 	} catch (error) {
 		console.log(error);
 	}
-
-	// try {
-	// 	await createConnection();
-	// 	const getConn = getConnection();
-	// 	console.log('Connected successfully');
-	// 	const member: Member = new GymMember();
-	// 	member.firstName = 'XXX';
-	// 	member.lastName = 'Sobral';
-	// 	member.password = 'qwerty';
-	// 	member.contact = 927403165;
-	// 	member.email = 'pedrosobral666@gmail.com';
-	// 	member.role = 'member';
-	// 	member.createdAt = Date();
-	// 	// const repository = getConn.getRepository(GymMember);
-	// 	try {
-	// 		// console.log('Inserting');
-	// 		// await repository.save(member);
-	// 		// console.log('Inserted');
-	// 	} catch (error) {
-	// 		// console.error('Error: ', error);
-	// 	}
-	// } catch (error) {
-	// 	console.log('error');
-	// 	throw new Error('Unable to connect to db');
-	// }
 }
 
 main();

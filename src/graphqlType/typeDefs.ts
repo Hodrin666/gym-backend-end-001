@@ -5,7 +5,7 @@
 import { gql } from 'apollo-server';
 
 /**
- * TypeDefs.
+ * Schema.
  */
 
 const typeDefs = gql`
@@ -17,14 +17,11 @@ const typeDefs = gql`
 
 	input memberInput {
 		contact: Int!
-		createdAt: String!
-		deletedAt: String
 		email: String!
 		firstName: String!
-		_id: ID!
 		lastName: String!
 		password: String!
-		role: [Role]!
+		role: Role!
 	}
 
 	type member {
@@ -41,7 +38,6 @@ const typeDefs = gql`
 
 	type createMemberSuccess {
 		success: Boolean!
-		message: String
 		member: member
 	}
 

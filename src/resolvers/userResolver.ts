@@ -1,29 +1,41 @@
+/* eslint-disable no-underscore-dangle */
 /**
  * Module dependencies.
  */
 
-import Member from '@src/types/member';
+import { InputMember } from '@src/types/member';
 import { Types } from 'mongoose';
 import UserModel from '@src/schema/user';
+import bcrypt from 'bcrypt';
 
 /**
  * `UserResolver` endpoints.
  */
 
 const userResolver = {
-	// Mutation: {
-	// 	createUser: async (_: unknown, { member }: { member: Member }) => {
-	// 		const createMember = new UserModel(member);
-	// 		createMember.password =
-	// 		try {
-	// 			await createMember.save();
-	// 		} catch (error) {
-	// 			console.log('User not inserted');
-	// 			throw error;
-	// 		}
-	// 		return 'Something went wrong';
-	// 	},
-	// },
+	Mutation: {
+		createUser: async (_: unknown, { input }: { input: InputMember }) => {
+			const member = input;
+			const saltRounds: number = 10;
+			member.password = bcrypt.hashSync(member.password, saltRounds);
+			member._id = new Types.ObjectId();
+			member.createdAt = new Date();
+			const createMember = new UserModel(member);
+
+			try {
+				await createMember.save();
+				const found = await UserModel.findById(createMember._id);
+
+				return {
+					member: createMember,
+					success: found && true,
+				};
+			} catch (error) {
+				console.log('User not inserted');
+				throw error;
+			}
+		},
+	},
 	Query: {
 		allUsers: async (_: unknown, { first = 0 }: { first: number }) => {
 			try {
