@@ -1,14 +1,20 @@
+/* eslint-disable no-underscore-dangle */
 /**
  * Module dependencies.
  */
 
 import 'reflect-metadata';
 import 'dotenv/config';
+import { Types, connect } from 'mongoose';
+import accessTokenGenerator, { refreshTokenGenerator } from '@src/auth';
+import express, { NextFunction, Request, Response } from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { connect } from 'mongoose';
-import express from 'express';
+import UserModel from '@src/schema/user';
+import cookieParser from 'cookie-parser';
+import isAuthenticated from '@src/middleware/auth';
 import typeDefs from '@src/graphqlType/typeDefs';
 import userResolver from '@src/resolvers/userResolver';
+import { verify } from 'jsonwebtoken';
 
 /**
  * Function `Main`.
@@ -22,6 +28,11 @@ async function main() {
 		? process?.env?.DATABASE_URI
 		: '';
 
+	const cors = {
+		credentials: true,
+		origin: 'https://studio.apollographql.com',
+	};
+
 	try {
 		await connect(uri);
 
@@ -30,14 +41,58 @@ async function main() {
 		console.log('Connection not successful: ', error);
 	}
 
+	app.use(cookieParser());
+
+	app.post(
+		'/refresh_token',
+		async (req: Request, res: Response, next: NextFunction) => {
+			const token = req.cookies.jid;
+			if (!token) {
+				res.send({ accessToken: '', ok: false });
+				return next();
+			}
+
+			const secret = process.env.REFRESH_JWT_SECRET || '';
+			let payload: any = null;
+			try {
+				payload = verify(token, secret);
+			} catch (error) {
+				console.error(error);
+				res.send({ accessToken: '', ok: false });
+				return next();
+			}
+
+			const { _id }: { _id: Types.ObjectId } = payload;
+
+			const user = await UserModel.findById(_id);
+
+			if (!user) {
+				res.send({ accessToken: '', ok: false });
+				return next();
+			}
+
+			res.cookie('jid', refreshTokenGenerator(user), {
+				httpOnly: true,
+			});
+
+			res.send({ accessToken: accessTokenGenerator(user), ok: true });
+			return next();
+		}
+	);
+
 	const apolloServer = new ApolloServer({
+		context: async ({ req, res }: { req: Request; res: Response }) => ({
+			isAuthenticated: () => isAuthenticated(req),
+			req,
+			res,
+		}),
 		resolvers: [userResolver],
 		typeDefs,
 	});
 
 	try {
 		await apolloServer.start();
-		apolloServer.applyMiddleware({ app });
+		apolloServer.applyMiddleware({ app, cors });
 
 		app.listen(port, () => {
 			console.log(

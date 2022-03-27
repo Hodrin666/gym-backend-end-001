@@ -2,7 +2,7 @@
  * Module dependencies.
  */
 
-import { Document, Schema, Types } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 /**
  * Export `UserRoleRtp` type.
@@ -29,7 +29,7 @@ export default interface Member {
 	deletedAt?: Date;
 	email: string;
 	firstName: string;
-	_id: Schema.Types.ObjectId;
+	_id: Types.ObjectId;
 	lastName: string;
 	password: string;
 	role: UserRoleType;
@@ -49,4 +49,42 @@ export interface InputMember extends Document {
 	lastName: string;
 	password: string;
 	role: UserRoleType;
+}
+
+/**
+ * Export `InputUpdateMember` interface.
+ */
+
+export interface InputUpdateMember extends Document {
+	contact?: number;
+	email?: string;
+	firstName?: string;
+	_id: Types.ObjectId;
+	lastName: string;
+}
+
+/**
+ * Export `InputLogin` interface.
+ */
+
+export interface InputLogin extends Document {
+	contact: number;
+	createdAt: Date;
+	deletedAt?: Date;
+	email: string;
+	firstName: string;
+	_id: Types.ObjectId;
+	lastName: string;
+	password: string;
+	role: UserRoleType;
+}
+
+/**
+ * Export `LoginMessage` interface.
+ */
+
+export interface LoginMessage {
+	accessToken?: string;
+	message: string;
+	success: boolean;
 }

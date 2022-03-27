@@ -2,7 +2,7 @@
  * Module dependencies.
  */
 
-import { Model, Schema, model } from 'mongoose';
+import { Model, Schema, Types, model } from 'mongoose';
 import Member from '@src/types/member';
 
 /**
@@ -11,7 +11,7 @@ import Member from '@src/types/member';
 
 const userSchema: Schema = new Schema<Member>(
 	{
-		_id: Schema.Types.ObjectId,
+		_id: Types.ObjectId,
 		contact: String,
 		createdAt: String,
 		deletedAt: Date,
