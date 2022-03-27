@@ -24,6 +24,19 @@ const typeDefs = gql`
 		role: Role!
 	}
 
+	input memberUpdateInput {
+		_id: ID!
+		contact: Int
+		email: String
+		firstName: String
+		lastName: String
+	}
+
+	input memberLogin {
+		email: String!
+		password: String!
+	}
+
 	type member {
 		contact: Int!
 		createdAt: String!
@@ -41,6 +54,18 @@ const typeDefs = gql`
 		member: member
 	}
 
+	type LoginResponse {
+		success: Boolean!
+		accessToken: String
+		message: String!
+	}
+
+	type updateMemberSuccess {
+		success: Boolean!
+		message: String!
+		member: member
+	}
+
 	type Query {
 		allUsers(first: Int): [member!]
 		user(_id: ID!): member!
@@ -48,6 +73,10 @@ const typeDefs = gql`
 
 	type Mutation {
 		createUser(input: memberInput!): createMemberSuccess!
+		registerUser(input: memberInput!): createMemberSuccess!
+		forgotPassword(email: String!): Boolean!
+		login(input: memberLogin!): LoginResponse!
+		updateUser(input: memberUpdateInput): updateMemberSuccess!
 	}
 `;
 
