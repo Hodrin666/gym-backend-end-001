@@ -1,0 +1,16 @@
+version: '2.2'
+
+services:
+  gym-backend-app:
+    image: gym-backend-docker:latest
+    restart: always
+    environment:
+      DATABASE_URI : "mongodb+srv://hodrin666:SndvPEcB83Zy0nZN@cluster0.gfeal.mongodb.net/gym_members?retryWrites=true&w=majority"
+      AUTH_SECRET : "71be706772314fb596993a4fab4e2a988c3de4849c651d1cf13866743f644615"
+      JWT_SECRET : "8dfcd1df4c057b0adfc5dd2bc8a6a585017aea83357c1d0712b09ad89209b382"
+      REFRESH_JWT_SECRET : "3cc23e07685f4d610e9962d8ca7475f2c099e5baab3a957c33b00f52a3e9a8e4"
+      STORE_EMAIL : "pedro.m.a.a.sobral@gmail.com"
+      STORE_EMAIL_PASSWORD : "M.shadows7!1998"
+      STORE_SERVICE : "gmail"
+    ports:
+      - 4000:4000

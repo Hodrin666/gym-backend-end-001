@@ -30,7 +30,7 @@ export default function accessTokenGenerator(member: Member) {
 		const token = sign(
 			{ _id: member._id, role: member.role },
 			process.env.JWT_SECRET,
-			{ expiresIn: '5m' }
+			{ expiresIn: '30m' }
 		);
 		return token;
 	}

@@ -13,7 +13,6 @@ import accessTokenGenerator, { refreshTokenGenerator } from '@src/auth';
 import { compare, hashSync } from 'bcrypt';
 import { createTransport, getTestMessageUrl } from 'nodemailer';
 import { ApolloError } from 'apollo-server-core';
-import { Response } from 'express';
 import { Types } from 'mongoose';
 import UserModel from '@src/schema/user';
 import storeToken from '@src/storeTokens';
@@ -97,8 +96,7 @@ const userResolver = {
 		},
 		login: async (
 			_: unknown,
-			{ input }: { input: InputLogin },
-			{ res }: { res: Response }
+			{ input }: { input: InputLogin }
 		): Promise<LoginMessage> => {
 			const { email }: { email: string } = input;
 			const { password }: { password: string } = input;
@@ -113,12 +111,6 @@ const userResolver = {
 						const accessToken = accessTokenGenerator(user);
 						const refreshToken = refreshTokenGenerator(user);
 
-						res.cookie('jid', refreshToken, {
-							httpOnly: true,
-							sameSite: 'none',
-							secure: true,
-						});
-
 						try {
 							await storeToken(user, accessToken, refreshToken);
 						} catch (error) {
@@ -128,7 +120,9 @@ const userResolver = {
 
 						return {
 							accessToken,
+							member: user,
 							message: 'You are authenticated',
+							refreshToken,
 							success: loggedin,
 						};
 					}
@@ -196,7 +190,28 @@ const userResolver = {
 		},
 	},
 	Query: {
-		allUsers: async (_: unknown, { first = 0 }: { first: number }) => {
+		allTeachers: async (
+			_: unknown,
+			{ first = 0 }: { first: number },
+			context: any
+		) => {
+			if (!context.isAuthenticated()) return null;
+			try {
+				const allTeachers = await UserModel.find({ role: 'teacher' })
+					.limit(10)
+					.skip(first);
+				return allTeachers;
+			} catch (error) {
+				console.log('Error: ', error);
+			}
+			return 'Something went wrong';
+		},
+		allUsers: async (
+			_: unknown,
+			{ first = 0 }: { first: number },
+			context: any
+		) => {
+			if (!context.isAuthenticated()) return null;
 			try {
 				const allMembers = await UserModel.find().limit(10).skip(first);
 				return allMembers;
@@ -205,7 +220,8 @@ const userResolver = {
 			}
 			return 'Something went wrong';
 		},
-		user: async (_: unknown, { _id }: { _id: string }) => {
+		user: async (_: unknown, { _id }: { _id: string }, context: any) => {
+			if (!context.isAuthenticated()) return null;
 			const id = new Types.ObjectId(_id);
 
 			try {

@@ -10,6 +10,7 @@ import accessTokenGenerator, { refreshTokenGenerator } from '@src/auth';
 import express, { NextFunction, Request, Response } from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import UserModel from '@src/schema/user';
+import classResolver from '@src/resolvers/classResolver';
 import cookieParser from 'cookie-parser';
 import isAuthenticated from '@src/middleware/auth';
 import typeDefs from '@src/graphqlType/typeDefs';
@@ -46,11 +47,14 @@ async function main() {
 	app.post(
 		'/refresh_token',
 		async (req: Request, res: Response, next: NextFunction) => {
-			const token = req.cookies.jid;
+			let token = req.headers.authorization;
+
 			if (!token) {
 				res.send({ accessToken: '', ok: false });
 				return next();
 			}
+
+			token = token.split('Bearer')[1].trim();
 
 			const secret = process.env.REFRESH_JWT_SECRET || '';
 			let payload: any = null;
@@ -71,11 +75,11 @@ async function main() {
 				return next();
 			}
 
-			res.cookie('jid', refreshTokenGenerator(user), {
-				httpOnly: true,
+			res.send({
+				accessToken: accessTokenGenerator(user),
+				ok: true,
+				refreshToken: refreshTokenGenerator(user),
 			});
-
-			res.send({ accessToken: accessTokenGenerator(user), ok: true });
 			return next();
 		}
 	);
@@ -86,7 +90,8 @@ async function main() {
 			req,
 			res,
 		}),
-		resolvers: [userResolver],
+		introspection: true,
+		resolvers: [userResolver, classResolver],
 		typeDefs,
 	});
 
