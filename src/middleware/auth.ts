@@ -2,9 +2,9 @@
  * Module dependencies.
  */
 
+import { TokenExpiredError, verify } from 'jsonwebtoken';
 import { AuthenticationError } from 'apollo-server-core';
 import { Request } from 'express';
-import { verify } from 'jsonwebtoken';
 
 /**
  * Function `isAuthenticated`.
@@ -21,6 +21,10 @@ function isAuthenticated(req: Request) {
 				const user = verify(token, secret);
 				return user;
 			} catch (err) {
+				if (err instanceof TokenExpiredError) {
+					throw new AuthenticationError('Expired_Token');
+				}
+
 				throw new AuthenticationError('Invalid/Expired Token');
 			}
 		}

@@ -85,6 +85,8 @@ export interface InputLogin extends Document {
 
 export interface LoginMessage {
 	accessToken?: string;
+	refreshToken?: string;
+	member?: Member;
 	message: string;
 	success: boolean;
 }
