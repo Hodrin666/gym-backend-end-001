@@ -39,7 +39,7 @@ module.exports = {
 		],
 		'import/extensions': 'off',
 		'import/no-unresolved': 'error',
-		'no-console': 'off',
+		'no-console': 'warn',
 		'no-use-before-define': 'off',
 		'prettier/prettier': 'error',
 		'sort-imports': [

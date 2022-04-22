@@ -9,6 +9,8 @@ import { gql } from 'apollo-server';
  */
 
 const typeDefs = gql`
+	scalar Upload
+
 	enum Role {
 		admin
 		member
@@ -106,6 +108,7 @@ const typeDefs = gql`
 		user(_id: ID!): member!
 		allTeachers(first: Int): [member!]
 		allClasses(first: Int): [gymClass!]
+		getProfileImage(name: String!): Image!
 	}
 
 	type createGymClassResponse {
@@ -119,6 +122,16 @@ const typeDefs = gql`
 		message: String!
 	}
 
+	type File {
+		message: String!
+		status: String!
+	}
+
+	type Image {
+		authorized: Boolean!
+		url: String!
+	}
+
 	type Mutation {
 		createUser(input: memberInput!): createMemberSuccess!
 		registerUser(input: memberInput!): createMemberSuccess!
@@ -129,6 +142,7 @@ const typeDefs = gql`
 		createGymClass(input: classInput!): createGymClassResponse!
 		editGymClassById(input: editClassInput!): createGymClassResponse!
 		createBulkGymClass(input: [classInput!]): createGymClassResponse!
+		uploadFile(file: Upload!): File!
 	}
 `;
 

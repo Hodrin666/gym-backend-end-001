@@ -11,7 +11,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import UserModel from '@src/schema/user';
 import classResolver from '@src/resolvers/classResolver';
-import cookieParser from 'cookie-parser';
+import { graphqlUploadExpress } from 'graphql-upload';
 import isAuthenticated from '@src/middleware/auth';
 import typeDefs from '@src/graphqlType/typeDefs';
 import userResolver from '@src/resolvers/userResolver';
@@ -25,14 +25,11 @@ async function main() {
 	const app = express();
 	const port: number = 4000;
 
+	app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
+
 	const uri: string = process?.env?.DATABASE_URI
 		? process?.env?.DATABASE_URI
 		: '';
-
-	const cors = {
-		credentials: true,
-		origin: 'https://studio.apollographql.com',
-	};
 
 	try {
 		await connect(uri);
@@ -41,8 +38,6 @@ async function main() {
 	} catch (error) {
 		console.log('Connection not successful: ', error);
 	}
-
-	app.use(cookieParser());
 
 	app.post(
 		'/refresh_token',
@@ -97,7 +92,7 @@ async function main() {
 
 	try {
 		await apolloServer.start();
-		apolloServer.applyMiddleware({ app, cors });
+		apolloServer.applyMiddleware({ app });
 
 		app.listen(port, () => {
 			console.log(
