@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/typedef */
 /* eslint-disable no-underscore-dangle */
 /**
  * Module dependencies.
  */
 
+import { FileUpload, GraphQLUpload } from 'graphql-upload';
 import {
 	InputLogin,
 	InputMember,
@@ -12,16 +14,28 @@ import {
 import accessTokenGenerator, { refreshTokenGenerator } from '@src/auth';
 import { compare, hashSync } from 'bcrypt';
 import { createTransport, getTestMessageUrl } from 'nodemailer';
+import AWS from 'aws-sdk';
 import { ApolloError } from 'apollo-server-core';
 import { Types } from 'mongoose';
 import UserModel from '@src/schema/user';
 import storeToken from '@src/storeTokens';
 
 /**
+ * s3 credentials
+ */
+
+const s3 = new AWS.S3({
+	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+});
+
+/**
  * `UserResolver` endpoints.
  */
 
 const userResolver = {
+	Upload: GraphQLUpload,
+	// eslint-disable-next-line sort-keys
 	Mutation: {
 		createUser: async (
 			_: unknown,
@@ -162,8 +176,6 @@ const userResolver = {
 
 			if (!user) return { message: 'User not found', success: false };
 
-			console.log('input', input);
-
 			try {
 				const update = {
 					contact: input.contact,
@@ -186,6 +198,32 @@ const userResolver = {
 				throw new ApolloError('User not found');
 			} catch (error) {
 				throw new ApolloError('Member not updated!');
+			}
+		},
+		uploadFile: async (_: unknown, { file }: { file: FileUpload }) => {
+			const { createReadStream, filename, mimetype } = await file;
+
+			const extension: string = mimetype.split('/')[1];
+
+			try {
+				const params: AWS.S3.PutObjectRequest = {
+					Body: createReadStream(),
+					Bucket: process.env.AWS_BUCKET_NAME || 'no-bucket',
+					Key: `${filename}.${extension}`,
+				};
+
+				// Uploading files to the bucket
+				const data = await s3.upload(params).promise();
+
+				return {
+					message: `File uploaded successfully. ${data.Location}`,
+					status: true,
+				};
+			} catch (error) {
+				return {
+					message: `File uploaded unsuccessfully.`,
+					status: false,
+				};
 			}
 		},
 	},
@@ -219,6 +257,47 @@ const userResolver = {
 				console.log('Error: ', error);
 			}
 			return 'Something went wrong';
+		},
+		getProfileImage: async (_: unknown, { name }: { name: string }) => {
+			try {
+				const paramsToFindByPrefix: AWS.S3.ListObjectsV2Request = {
+					Bucket: process.env.AWS_BUCKET_NAME || 'no-bucket',
+					MaxKeys: 1,
+					Prefix: name,
+				};
+
+				const found = await s3.listObjectsV2(paramsToFindByPrefix).promise();
+
+				if (found.Contents !== undefined && found.Contents.length > 0) {
+					const params = {
+						Bucket: process.env.AWS_BUCKET_NAME || 'no-bucket',
+						Expires: 60,
+						Key: found.Contents[0].Key || '',
+					};
+
+					const url = await s3.getSignedUrlPromise('getObject', params);
+
+					return {
+						authorized: true,
+						url,
+					};
+				}
+
+				const params = {
+					Bucket: process.env.AWS_BUCKET_NAME || 'no-bucket',
+					Expires: 60,
+					Key: 'no-image.jpg',
+				};
+
+				const url = await s3.getSignedUrlPromise('getObject', params);
+
+				return {
+					authorized: true,
+					url,
+				};
+			} catch (error) {
+				throw new ApolloError('Something went wrong');
+			}
 		},
 		user: async (_: unknown, { _id }: { _id: string }, context: any) => {
 			if (!context.isAuthenticated()) return null;
