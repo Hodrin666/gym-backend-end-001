@@ -128,7 +128,7 @@ const typeDefs = gql`
 	}
 
 	type Image {
-		authorized: Boolean!
+		hasImage: Boolean!
 		url: String!
 	}
 

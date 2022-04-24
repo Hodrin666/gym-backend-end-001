@@ -26,6 +26,7 @@ import storeToken from '@src/storeTokens';
 
 const s3 = new AWS.S3({
 	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+	region: 'eu-west-2',
 	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 });
 
@@ -278,22 +279,14 @@ const userResolver = {
 					const url = await s3.getSignedUrlPromise('getObject', params);
 
 					return {
-						authorized: true,
+						hasImage: true,
 						url,
 					};
 				}
 
-				const params = {
-					Bucket: process.env.AWS_BUCKET_NAME || 'no-bucket',
-					Expires: 60,
-					Key: 'no-image.jpg',
-				};
-
-				const url = await s3.getSignedUrlPromise('getObject', params);
-
 				return {
-					authorized: true,
-					url,
+					hasImage: false,
+					url: '',
 				};
 			} catch (error) {
 				throw new ApolloError('Something went wrong');

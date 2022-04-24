@@ -60,10 +60,8 @@ const classResolver = {
 			_: unknown,
 			{ input }: { input: DeleteClassInput }
 		) => {
-			console.log('Input', input);
 			try {
 				const deleteClass = await ClassModel.findByIdAndDelete(input._id);
-				console.log('deleteClass', deleteClass);
 				if (deleteClass) {
 					return {
 						message: 'Class deleted successfully',
