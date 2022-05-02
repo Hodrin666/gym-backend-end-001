@@ -119,6 +119,13 @@ const userResolver = {
 			try {
 				const user = await UserModel.findOne({ email }).exec();
 
+				if (!user) {
+					return {
+						message: 'Credentials are wrong',
+						success: false,
+					};
+				}
+
 				if (user?.password) {
 					const loggedin = await compare(password, user?.password);
 
@@ -141,6 +148,11 @@ const userResolver = {
 							success: loggedin,
 						};
 					}
+				} else {
+					return {
+						message: 'Credentials are wrong',
+						success: false,
+					};
 				}
 			} catch (error) {
 				console.error(error);

@@ -93,7 +93,7 @@ const typeDefs = gql`
 		success: Boolean!
 		accessToken: String
 		refreshToken: String
-		member: member!
+		member: member
 		message: String!
 	}
 
