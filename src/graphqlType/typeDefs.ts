@@ -105,9 +105,10 @@ const typeDefs = gql`
 
 	type Query {
 		allUsers(first: Int): [member!]
-		user(_id: ID!): member!
+		getUserById(_id: ID!): member!
 		allTeachers(first: Int): [member!]
 		allClasses(first: Int): [gymClass!]
+		getDailyClass: gymClass!
 		getProfileImage(name: String!): Image!
 	}
 
@@ -124,7 +125,8 @@ const typeDefs = gql`
 
 	type File {
 		message: String!
-		status: String!
+		status: Boolean!
+		url: String
 	}
 
 	type Image {
