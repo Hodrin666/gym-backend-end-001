@@ -214,11 +214,22 @@ const userResolver = {
 				};
 
 				// Uploading files to the bucket
-				const data = await s3.upload(params).promise();
+				await s3.upload(params).promise();
+
+				// Sign uri
+
+				const signedParams = {
+					Bucket: process.env.AWS_BUCKET_NAME || 'no-bucket',
+					Expires: 60,
+					Key: `${filename}.${extension}` || '',
+				};
+
+				const url = await s3.getSignedUrlPromise('getObject', signedParams);
 
 				return {
-					message: `File uploaded successfully. ${data.Location}`,
+					message: 'File uploaded successfully.',
 					status: true,
+					url,
 				};
 			} catch (error) {
 				return {
@@ -292,7 +303,7 @@ const userResolver = {
 				throw new ApolloError('Something went wrong');
 			}
 		},
-		user: async (_: unknown, { _id }: { _id: string }, context: any) => {
+		getUserById: async (_: unknown, { _id }: { _id: string }, context: any) => {
 			if (!context.isAuthenticated()) return null;
 			const id = new Types.ObjectId(_id);
 

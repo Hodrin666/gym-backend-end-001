@@ -127,12 +127,31 @@ const classResolver = {
 		) => {
 			if (!context.isAuthenticated()) return null;
 			try {
-				const allClasses = await ClassModel.find().limit(10).skip(first);
+				const allClasses = await ClassModel.find()
+					.sort('date')
+					.limit(10)
+					.skip(first)
+					.sort('time');
+
 				return allClasses;
 			} catch (error) {
 				console.log('Error: ', error);
 			}
 			return 'Something went wrong';
+		},
+		getDailyClass: async (_: unknown, data: unknown, context: any) => {
+			if (!context.isAuthenticated()) return null;
+			try {
+				const gymClass = await ClassModel.find()
+					.sort('date')
+					.limit(1)
+					.sort('time');
+
+				return gymClass[0];
+			} catch (error) {
+				console.log('Error: ', error);
+				throw new ApolloError('Failed to find next class');
+			}
 		},
 	},
 };
