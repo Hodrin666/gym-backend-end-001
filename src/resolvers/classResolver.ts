@@ -23,12 +23,21 @@ const classResolver = {
 			const gymInput = input;
 			gymInput._id = new Types.ObjectId();
 			gymInput.createdAt = new Date();
-			const findTeacher = await UserModel.findById(input._teacherID);
 
-			if (findTeacher) {
-				gymInput.teacher = findTeacher;
+			try {
+				const findTeacher = await UserModel.findById(input._teacherID);
+
+				if (findTeacher) {
+					gymInput.teacher = findTeacher;
+				} else {
+					return {
+						message: 'Teacher not found',
+						success: false,
+					};
+				}
+			} catch {
+				throw new ApolloError('Teacher id not valid');
 			}
-
 			// gymInput._teacherID = new Types.ObjectId(gymInput._teacherID);
 
 			if (gymInput.members?.length) {
@@ -88,6 +97,13 @@ const classResolver = {
 
 			try {
 				const findTeacher = await UserModel.findById(input._teacherID);
+				if (!findTeacher) {
+					return {
+						message: 'Teacher not found',
+						success: false,
+					};
+				}
+
 				const update = {
 					_teacherID: classInput._teacherID,
 					date: classInput.date,
@@ -110,7 +126,7 @@ const classResolver = {
 
 					return message;
 				}
-				throw new ApolloError('Class not found');
+				throw new ApolloError('Class not found or teacher not found');
 			} catch (error) {
 				return {
 					message: error,
