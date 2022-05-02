@@ -44,6 +44,14 @@ const userResolver = {
 			context: any
 		) => {
 			if (!context.isAuthenticated()) return null;
+			const emailInUse = await UserModel.findOne({ email: input.email }).exec();
+			console.log('Hello', emailInUse);
+			if (emailInUse) {
+				return {
+					message: 'Email is already being used',
+					success: false,
+				};
+			}
 
 			const member = input;
 			const saltRounds: number = 10;
@@ -57,6 +65,7 @@ const userResolver = {
 				const found = await UserModel.findById(createMember._id);
 				return {
 					member: createMember,
+					message: 'User created successfully',
 					success: found && true,
 				};
 			} catch (error) {
@@ -164,6 +173,13 @@ const userResolver = {
 			};
 		},
 		registerUser: async (_: unknown, { input }: { input: InputMember }) => {
+			const emailInUse = await UserModel.findOne({ email: input.email }).exec();
+			if (emailInUse) {
+				return {
+					message: 'Email is already being used',
+					success: false,
+				};
+			}
 			const member = input;
 			const saltRounds: number = 10;
 			member.password = hashSync(member.password, saltRounds);
@@ -176,6 +192,7 @@ const userResolver = {
 				const found = await UserModel.findById(createMember._id);
 				return {
 					member: createMember,
+					message: 'User created successfully',
 					success: found && true,
 				};
 			} catch (error) {

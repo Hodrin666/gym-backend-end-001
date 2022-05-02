@@ -87,6 +87,7 @@ const typeDefs = gql`
 	type createMemberSuccess {
 		success: Boolean!
 		member: member
+		message: String!
 	}
 
 	type LoginResponse {
