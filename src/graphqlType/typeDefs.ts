@@ -18,7 +18,7 @@ const typeDefs = gql`
 	}
 
 	input memberInput {
-		contact: Int!
+		contact: String!
 		email: String!
 		firstName: String!
 		lastName: String!
@@ -28,7 +28,7 @@ const typeDefs = gql`
 
 	input memberUpdateInput {
 		_id: ID!
-		contact: Int
+		contact: String
 		email: String
 		firstName: String
 		lastName: String
@@ -40,7 +40,7 @@ const typeDefs = gql`
 	}
 
 	type member {
-		contact: Int!
+		contact: String!
 		createdAt: String!
 		deletedAt: String
 		email: String!
