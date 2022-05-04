@@ -157,9 +157,14 @@ const classResolver = {
 		},
 		getDailyClass: async (_: unknown, data: unknown, context: any) => {
 			if (!context.isAuthenticated()) return null;
+			const today = new Date();
+			const year = new Date().getFullYear().toString().substring(2);
+			const day = String(today.getDate()).padStart(2, '0');
+			const month = String(today.getMonth() + 1).padStart(2, '0');
+			const todayFormatedDate = `${month}/${day}/${year}`;
+
 			try {
-				const gymClass = await ClassModel.find()
-					.sort('date')
+				const gymClass = await ClassModel.find({ date: todayFormatedDate })
 					.limit(1)
 					.sort('time');
 
