@@ -168,7 +168,18 @@ const classResolver = {
 					.limit(1)
 					.sort('time');
 
-				return gymClass[0];
+				if (gymClass.length > 0) {
+					return {
+						class: gymClass[0],
+						message: 'Class found!',
+						success: true,
+					};
+				}
+
+				return {
+					message: 'Rest day',
+					success: false,
+				};
 			} catch (error) {
 				console.log('Error: ', error);
 				throw new ApolloError('Failed to find next class');

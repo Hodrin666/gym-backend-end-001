@@ -17,7 +17,15 @@ const typeDefs = gql`
 		teacher
 	}
 
-	input memberInput {
+	input registerMemberInput {
+		contact: String!
+		email: String!
+		firstName: String!
+		lastName: String!
+		password: String!
+	}
+
+	input adminCreateMemberInput {
 		contact: String!
 		email: String!
 		firstName: String!
@@ -104,12 +112,18 @@ const typeDefs = gql`
 		member: member
 	}
 
+	type getDailyClassResponse {
+		success: Boolean!
+		message: String!
+		class: gymClass
+	}
+
 	type Query {
 		allUsers(first: Int): [member!]
 		getUserById(_id: ID!): member!
 		allTeachers(first: Int): [member!]
 		allClasses(first: Int): [gymClass!]
-		getDailyClass: gymClass!
+		getDailyClass: getDailyClassResponse!
 		getProfileImage(name: String!): Image!
 	}
 
@@ -136,8 +150,8 @@ const typeDefs = gql`
 	}
 
 	type Mutation {
-		createUser(input: memberInput!): createMemberSuccess!
-		registerUser(input: memberInput!): createMemberSuccess!
+		createUser(input: adminCreateMemberInput!): createMemberSuccess!
+		registerUser(input: registerMemberInput!): createMemberSuccess!
 		forgotPassword(email: String!): Boolean!
 		login(input: memberLogin!): LoginResponse!
 		updateUser(input: memberUpdateInput): updateMemberSuccess!
