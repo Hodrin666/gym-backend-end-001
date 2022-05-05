@@ -185,6 +185,7 @@ const userResolver = {
 			member.password = hashSync(member.password, saltRounds);
 			member._id = new Types.ObjectId();
 			member.createdAt = new Date();
+			member.role = 'member';
 			const createMember = new UserModel(member);
 
 			try {
